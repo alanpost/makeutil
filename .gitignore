@@ -1,3 +1,10 @@
+# release
+makeutil-*.tgz
+makeutil-*.tbz2
+makeutil-*.text.bz2
+MD5
+SHA1
+
 # source code archive
 makeutil.text
 
