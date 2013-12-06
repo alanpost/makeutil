@@ -1,0 +1,27 @@
+opt:local
+
+the |ccdesc| and |pdesc| portion of the config spec.  valid values
+for these fields are below.
+
+ccdesc:
+
+  opt:       create optimized executables
+  debug:     create debug executables
+  prof:      create profiled executables
+
+
+pdesc:
+
+  local:         install in /usr/local
+  base:          install in / and /usr
+  home:          install in $HOME
+  prefix:        install in $PREFIX
+  devel:         pre-release development (increases warning level of compile)
+  pkglocal:      create a package to install in /usr/local
+  pkgbase:       create a package to install in / and /usr
+  pkgprefix:     create a package to install in $PREFIX directory
+
+  NOTE: you must edit the Makefile for the pkg* platform
+		description to work.
+
+$Id: conf-pdesc,v 1.1 2004/11/28 22:57:53 aisa0 Exp $

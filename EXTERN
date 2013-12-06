@@ -1,0 +1,91 @@
+|--------------------------------------------------(0x01)----------(extern)--|
+
+external files, programs, and functions.  This list is not complete.
+
+syscall:
+
+functions:
+  exit
+  fclose
+  ferror
+  fgets
+  fopen
+  fprintf
+  fputc
+  fputs
+  fread
+  fwrite
+  perror
+  strcmp
+  strerror
+
+symbols:
+  stderr
+  stdin
+  stdout
+  errno
+
+defines:
+  BUFSIZ
+  EOF
+  EXIT_SUCCESS
+  EXIT_FAILURE
+  NULL
+
+types:
+  FILE
+  size_t
+
+header:
+  sys/types.h
+  sys/stat.h
+  ctype.h
+  dirent.h
+  errno.h
+  fcntl.h
+  stdio.h
+  stdlib.h
+  string.h
+  unistd.h
+
+environment:
+
+bin:
+  bzip2                  (dist only)
+  cat                    (dist only)
+  cc
+  diff                   (test only)
+  gmake                  (dist only)
+  gzip                   (dist only)
+  head
+  install
+  ld
+  make                   (optional)
+  openssl                (dist only)
+  rm
+  rpm                    (only on certain platforms)
+  sed                    (only on certain platforms)
+  sh
+  tar                    (dist only)
+  tr
+  uname
+  zip                    (dist only)
+
+files:
+  /dev/null
+  /etc/arch-release      (not required)
+  /etc/cobolt-release    (not required)
+  /etc/debian_version    (not required)
+  /etc/familiar-version  (not required)
+  /etc/gentoo-release    (not required)
+  /etc/redhat-release    (not required)
+  /etc/mandrake-release  (not required)
+  /etc/slackware-version (not required)
+  /etc/SuSE-release      (not required)
+
+
+|---------------------------------------------------------------------(eof)--|
+$Id: EXTERN,v 1.3 2006/06/29 02:02:53 aisa0 Exp $
+
+                                                                         ..__
+                                                                         `' "

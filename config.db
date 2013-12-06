@@ -1,0 +1,960 @@
+;;;
+;;; conf database
+;;;
+;;; this file contains platform specific configuration files.
+;;;
+;;; Each line in this file starting with an '@' is a config line.
+;;; it specifies for which operating system, kernel, architecture
+;;; compiler, platform description, and filename the entry
+;;; corresponds to.
+;;;
+;;; An entry consists of the first line after a config line and
+;;; extending until a line that starts with a '.'. 
+;;;
+;;; config lines have the following format:
+;;;
+;;;   os-version:kern-version:arch:cc-version:ccdesc:pdesc:filename
+;;;
+;;; the file "systype", when built, contains the above information
+;;; for the platform you are building on.  The program |config| uses
+;;; that information to match lines in this file and outputs the
+;;; appropriate entry for your platform.
+;;;
+;;; entries in this file contain "partial" system information, while
+;;; leaving unneeded fields empty.  config lines in this file are
+;;; matched to the system according to the following rules:
+;;;
+;;;  * if a field is empty, it matches any value from systype.
+;;;  * if a field is not empty, it matches only its specified value
+;;;    from systype.
+;;;  * the entry with the most matching and no unmatching fields is
+;;;    used for this platform.
+;;;   
+
+
+
+;;
+;; conf/conf-cc
+;;
+;; command to compile .c files for a program.  this should be one
+;; of |conf-cc-g| |conf-cc-O| or |conf-cc-prof|.  this may be a
+;; cross-compiler.
+;;
+@-:-::custom-:custom::conf/conf-cc
+${CC} ${CFLAGS}
+.
+
+@-:-::gcc-:opt::conf/conf-cc
+gcc -g -O2 -fno-strict-aliasing -DNDEBUG
+.
+
+@-:-::gcc-:debug::conf/conf-cc
+gcc -g
+.
+
+@-:-::gcc-:prof::conf/conf-cc
+gcc -g -O2 -pg -fno-strict-aliasing -DNDEBUG -DPROF
+.
+
+@-:-::gcc-:opt:devel:conf/conf-cc
+gcc -g -O2 -fno-strict-aliasing -DNDEBUG -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@-:-::gcc-:debug:devel:conf/conf-cc
+gcc -g -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@-:-::gcc-:prof:devel:conf/conf-cc
+gcc -g -O2 -pg -fno-strict-aliasing -DNDEBUG -DPROF -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@darwin-:darwin-::gcc-:opt::conf/conf-cc
+gcc -g -O2 -fno-strict-aliasing -fno-common -DNDEBUG
+.
+
+@darwin-:darwin-::gcc-:debug::conf/conf-cc
+gcc -g -fno-strict-aliasing -fno-common
+.
+
+@darwin-:darwin-::gcc-:prof::conf/conf-cc
+gcc -g -O2 -pg -fno-strict-aliasing -fno-common -DNDEBUG -DPROF
+.
+
+@darwin-:darwin-::gcc-:opt:devel:conf/conf-cc
+gcc -g -O2 -fno-strict-aliasing -fno-common -DNDEBUG -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@darwin-:darwin-::gcc-:debug:devel:conf/conf-cc
+gcc -g -fno-common -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@darwin-:darwin-::gcc-:prof:devel:conf/conf-cc
+gcc -g -O2 -pg -fno-strict-aliasing -fno-common -DNDEBUG -DPROF -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@-:-::sunpro-:opt::conf/conf-cc
+cc -g -O -DNDEBUG -erroff
+.
+
+@-:-::sunpro-:debug::conf/conf-cc
+cc -g -erroff
+.
+
+@-:-::sunpro-:prof::conf/conf-cc
+cc -g -O -p -DNDEBUG -DPROF -erroff
+.
+
+@-:-::sunpro-:opt:devel:conf/conf-cc
+cc -g -O -DNDEBUG -errtags
+.
+
+@-:-::sunpro-:debug:devel:conf/conf-cc
+cc -g -errtags
+.
+
+@-:-::sunpro-:prof:devel:conf/conf-cc
+cc -g -O -p -DNDEBUG -DPROF -errtags
+.
+
+
+
+;;
+;; conf/conf-cc-O
+;;
+;; command to compile .c files for an optimized static library.
+;; this may be a cross-compiler.
+;;
+@-:-::custom-:custom::conf/conf-cc-O
+${CC} ${CFLAGS}
+.
+
+@-:-::gcc-:::conf/conf-cc-O
+gcc -g -O2 -fno-strict-aliasing -DNDEBUG
+.
+
+@-:-::gcc-::devel:conf/conf-cc-O
+gcc -g -O2 -fno-strict-aliasing -DNDEBUG -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@darwin-:darwin-::gcc-:::conf/conf-cc-O
+gcc -g -O2 -fno-strict-aliasing -fno-common -DNDEBUG
+.
+
+@darwin-:darwin-::gcc-::devel:conf/conf-cc-O
+gcc -g -O2 -fno-strict-aliasing -fno-common -DNDEBUG -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@-:-::sunpro-:::conf/conf-cc-O
+cc -g -O -DNDEBUG -erroff
+.
+
+@-:-::sunpro-::devel:conf/conf-cc-O
+cc -g -O -DNDEBUG -errtags
+.
+
+
+
+;;
+;; conf/conf-cc-g
+;;
+;; command to compile .c files for a debug static library.
+;; this may be a cross-compiler.
+;;
+@-:-::custom-:custom::conf/conf-cc-g
+${CC} ${CFLAGS}
+.
+
+@-:-::gcc-:::conf/conf-cc-g
+gcc -g
+.
+
+@-:-::gcc-::devel:conf/conf-cc-g
+gcc -g -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@darwin-:darwin-::gcc-:::conf/conf-cc-g
+gcc -g -fno-common
+.
+
+@darwin-:darwin-::gcc-::devel:conf/conf-cc-g
+gcc -g -fno-common -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@-:-::sunpro-:::conf/conf-cc-g
+cc -g -erroff
+.
+
+@-:-::sunpro-::devel:conf/conf-cc-g
+cc -g -errtags
+.
+
+
+
+;;
+;; conf/conf-cc-pic
+;;
+;; command to compile .c files for an optimized dynamic library.
+;; this may be a cross-compiler.
+;;
+@-:-::custom-:custom::conf/conf-cc-pic
+${CC} ${CFLAGS-PIC}
+.
+
+@-:-::gcc-:::conf/conf-cc-pic
+gcc -g -O2 -fPIC -fno-strict-aliasing -DNDEBUG -DPIC
+.
+
+@-:-::gcc-::devel:conf/conf-cc-pic
+gcc -g -O2 -fPIC -fno-strict-aliasing -DNDEBUG -DPIC -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@darwin-:darwin-::gcc-:::conf/conf-cc-pic
+gcc -g -O2 -dynamic -fno-strict-aliasing -fno-common -DNDEBUG -DPIC
+.
+
+@darwin-:darwin-::gcc-::devel:conf/conf-cc-pic
+gcc -g -O2 -dynamic -fno-strict-aliasing -fno-common -DNDEBUG -DPIC -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@-:-::sunpro-:::conf/conf-cc-pic
+cc -g -O -KPIC -DNDEBUG -DPIC -erroff
+.
+
+@-:-::sunpro-::devel:conf/conf-cc-pic
+cc -g -O -KPIC -DNDEBUG -DPIC -errtags
+.
+
+
+
+;;
+;; conf/conf-cc-prof
+;;
+;; command to compile .c files for a profiled static library.
+;; this may be a cross-compiler.
+;;
+@-:-::custom-:custom::conf/conf-cc-prof
+${CC} ${CFLAGS}
+.
+
+@-:-::gcc-:::conf/conf-cc-prof
+gcc -g -O2 -pg -fno-strict-aliasing -DNDEBUG -DPROF
+.
+
+@-:-::gcc-::devel:conf/conf-cc-prof
+gcc -g -O2 -pg -fno-strict-aliasing -DNDEBUG -DPROF -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@darwin-:darwin-::gcc-:::conf/conf-cc-prof
+gcc -g -O2 -pg -fno-strict-aliasing -fno-common -DNDEBUG -DPROF
+.
+
+@darwin-:darwin-::gcc-::devel:conf/conf-cc-prof
+gcc -g -O2 -pg -fno-strict-aliasing -fno-common -DNDEBUG -DPROF -Wall -Wpointer-arith -Wno-return-type -Wno-parentheses -Wno-implicit -Wno-unused -Wno-missing-braces -Werror
+.
+
+@-:-::sunpro-:::conf/conf-cc-prof
+cc -g -O -p -DNDEBUG -DPROF -erroff
+.
+
+@-:-::sunpro-::devel:conf/conf-cc-prof
+cc -g -O -p -DNDEBUG -DPROF -errtags
+.
+
+
+
+;;
+;; conf/conf-cc-x
+;;
+;; additional cc flags when compiling X applications.
+;;
+@-:-::-:::conf/conf-cc-x
+-I/usr/X11R6/include
+.
+
+@-:-::gcc-:::conf/conf-cc-x
+-I/usr/X11R6/include
+.
+
+@-:-::sunpro-:::conf/conf-cc-x
+-I/usr/X11R6/include
+.
+
+@sunos-:sunos-::-:::conf/conf-cc-x
+-I/usr/X/include
+.
+
+@sunos-:sunos-::gcc-:::conf/conf-cc-x
+-I/usr/X/include
+.
+
+@sunos-:sunos-::sunpro-:::conf/conf-cc-x
+-I/usr/X/include
+.
+
+
+
+;;
+;; conf/conf-dirsep
+;;
+;; directory separator.  if it is more than one character, you will
+;; need to change code.
+;;
+@-:-::-:::conf/conf-dirsep
+/
+.
+
+
+
+;;
+;; conf/conf-dist
+;;
+;; base directory for dist target.  an archive of the source
+;; tree is created in this directory.
+;;
+@-:-::-:::conf/conf-dist
+makeutil-src-head
+.
+
+
+
+;;
+;; conf/conf-doc-cat
+;;
+;; command to convert troff file into a cat page.
+;;
+@-:-::-:::conf/conf-doc-cat
+groff -Tascii -mandoc
+.
+
+
+
+;;
+;; conf/conf-doc-ps
+;;
+;; command to convert troff file into a postscript page.
+;;
+@-:-::-:::conf/conf-doc-ps
+groff -Tps -mandoc
+.
+
+
+
+;;
+;; conf/conf-doc-so
+;;
+;; command to preprocess troff files by processing .so lines.
+;;
+@-:-::-:::conf/conf-doc-so
+soelim
+.
+
+
+
+;;
+;; conf/conf-etc
+;;
+;; system configuration directory
+;;
+@-:-::-:::conf/conf-etc
+/etc
+.
+
+@-:-::-::opt:conf/conf-etc
+/etc/opt/makeutil
+.
+
+@-:-::-::home:conf/conf-etc
+${home}/etc
+.
+
+@-:-::-::prefix:conf/conf-etc
+${prefix}/etc
+.
+
+@-:-::-::pkgprefix:conf/conf-etc
+${prefix}/etc
+.
+
+
+
+;;
+;; conf/conf-incdir
+;;
+;; directory to find pdesc specific
+;; header files.
+;;
+@-:-::custom-:custom::conf/conf-incdir
+o
+.
+
+@-:-::-:opt::conf/conf-incdir
+o
+.
+
+@-:-::-:debug::conf/conf-incdir
+go
+.
+
+@-:-::-:prof::conf/conf-incdir
+po
+.
+
+
+
+;;
+;; conf/conf-ld
+;;
+;; command to link object files into an executable.
+;; this may be a cross-compiler.
+;;
+@-:-::custom-:custom::conf/conf-ld
+${LD} ${LDFLAGS}
+.
+
+@-:-::gcc-:opt::conf/conf-ld
+gcc -s
+.
+
+@-:-::gcc-:debug::conf/conf-ld
+gcc
+.
+
+@-:-::gcc-:prof::conf/conf-ld
+gcc -pg -static
+.
+
+@openbsd-:openbsd-:sparc64:gcc-:opt::conf/conf-ld
+gcc -s -export-dynamic
+.
+
+@openbsd-:openbsd-:sparc64:gcc-:debug::conf/conf-ld
+gcc -export-dynamic
+.
+
+@darwin-:darwin-::gcc-:opt::conf/conf-ld
+gcc -Wl,-x -force_flat_namespace -flat_namespace
+.
+
+@darwin-:darwin-::gcc-:debug::conf/conf-ld
+gcc -force_flat_namespace -flat_namespace
+.
+
+@darwin-:darwin-::gcc-:prof::conf/conf-ld
+gcc -pg -force_flat_namespace -flat_namespace
+.
+
+@-:-::sunpro-:opt::conf/conf-ld
+cc -Wl,-s -Bdynamic -dy
+.
+
+@-:-::sunpro-:debug::conf/conf-ld
+cc -Bdynamic -dy
+.
+
+@-:-::sunpro-:prof::conf/conf-ld
+cc -p -Bdynamic -dy
+.
+
+
+
+;;
+;; conf-ld-c
+;;
+;; ld argument for linking the c library.  Used when
+;; creating a shared library.
+;;
+@-:-::custom-:custom::conf/conf-ld-c
+-lc
+.
+
+@-:-::gcc-:::conf/conf-ld-c
+-lc
+.
+
+@-:-::sunpro-:::conf/conf-ld-c
+-lc
+.
+
+
+
+;;
+;; conf/conf-ld-ext
+;;
+;; extension to append to libraries linked with the |link| command.
+;;
+;;   _g: debug libraries
+;;   _p: profile libraries
+;;
+@-:-::custom-:custom::conf/conf-ld-ext
+
+.
+
+@-:-::-:opt::conf/conf-ld-ext
+
+.
+
+@-:-::-:debug::conf/conf-ld-ext
+_g
+.
+
+@-:-::-:prof::conf/conf-ld-ext
+_p
+.
+
+
+
+;;
+;; conf/conf-ld-gl
+;;
+;; libraries and ld flags required when linking opengl
+;; applications.
+;;
+@-:-::custom-:custom::conf/conf-ld-gl
+-lglut -lGLU -lGL -pthread -lXt -lXext -lXi -lXmu -lX11 -lm
+.
+
+@-:-::gcc-:::conf/conf-ld-gl
+-lglut -lGLU -lGL -pthread -lXt -lXext -lXi -lXmu -lX11 -lm
+.
+
+; untested
+@-:-::sunpro-:::conf/conf-ld-gl
+-lglut -lGLU -lGL -pthread -lXt -lXext -lXi -lXmu -lX11 -lm
+.
+
+
+
+;;
+;; conf/conf-ld-name
+;;
+;; ld argument for passing the soname of a shared library.  The
+;; soname of the library is appended to this argument.  Leave a
+;; blank line if your ld does not support soname.
+;;
+@-:-::custom-:custom::conf/conf-ld-name
+${LDFLAGS-SONAME}
+.
+
+@-:-::gcc-:::conf/conf-ld-name
+-Wl,-soname,
+.
+
+@darwin-:darwin-::gcc-:::conf/conf-ld-name
+-install_name 
+.
+
+@-:-::sunpro-:::conf/conf-ld-name
+-h
+.
+
+
+
+;;
+;; conf/conf-ld-path
+;;
+;; ld argument for passing the rpath directory.  The prefix of
+;; the executable is appended to this argument.  Leave a blank
+;; line if your ld does not support rpath.
+;;
+@-:-::custom-:custom::conf/conf-ld-path
+${LDFLAGS-RPATH}
+.
+
+@-:-::gcc-:::conf/conf-ld-path
+-Wl,-rpath,
+.
+
+@darwin-:darwin-::gcc-:::conf/conf-ld-path
+
+.
+
+@-:-::sunpro-:::conf/conf-ld-path
+-R
+.
+
+
+
+;;
+;; conf/conf-ld-pic
+;;
+;; command to link object files into a dynamic library.
+;;
+@-:-::custom-:custom::conf/conf-ld-pic
+${LD} ${LDFLAGS-PIC}
+.
+
+@-:-::gcc-:::conf/conf-ld-pic
+gcc -shared
+.
+
+@darwin-:darwin-::gcc-:::conf/conf-ld-pic
+libtool -dynamic -flat_namespace -undefined suppress
+.
+
+@-:-::sunpro-:::conf/conf-ld-pic
+cc -G
+.
+
+
+
+;;
+;; conf/conf-ld-so
+;;
+;; extension of shared libraries
+;;
+;;   so:    traditional unix
+;;   dylib: darwin
+;;
+@-:-::-:::conf/conf-ld-so
+so
+.
+
+@darwin-:darwin-::-:::conf/conf-ld-so
+dylib
+.
+
+
+
+;;
+;; conf/conf-ld-stat
+;;
+;; command to link object files into an statically linked executable.
+;; This may be a cross-compiler.
+;;
+@-:-::custom-:custom::conf/conf-ld-stat
+${LD} ${LDFLAGS-STATIC}
+.
+
+@-:-::gcc-:opt::conf/conf-ld-stat
+gcc -s -static
+.
+
+@-:-::gcc-:debug::conf/conf-ld-stat
+gcc -static
+.
+
+@-:-::gcc-:prof::conf/conf-ld-stat
+gcc -pg -static
+.
+
+; it is not possible to build static binaries on darwin unless
+; you compile your own toolchain--build dynamic binaries instead.
+;
+@darwin-:darwin-::gcc-:opt::conf/conf-ld-stat
+gcc -Wl,-x -force_flat_namespace -flat_namespace
+.
+
+@darwin-:darwin-::gcc-:debug::conf/conf-ld-stat
+gcc -force_flat_namespace -flat_namespace
+.
+
+@darwin-:darwin-::gcc-:prof::conf/conf-ld-stat
+gcc -pg -force_flat_namespace -flat_namespace
+.
+
+@-:-::sunpro-:opt::conf/conf-ld-stat
+cc -Wl,-s -Bstatic -dn
+.
+
+@-:-::sunpro-:debug::conf/conf-ld-stat
+cc -Bstatic -dn
+.
+
+@-:-::sunpro-:prof::conf/conf-ld-stat
+cc -p -Bstatic -dn
+.
+
+
+
+;;
+;; conf/conf-ld-x
+;;
+;; additional ld flags when linking X applications.
+;;
+@-:-::custom-:custom::conf/conf-ld-x
+-L/usr/X11R6/lib
+.
+
+@-:-::gcc-:::conf/conf-ld-x
+-L/usr/X11R6/lib
+.
+
+@-:-::sunpro-:::conf/conf-ld-x
+-L/usr/X11R6/lib
+.
+
+@sunos-:sunos-::custom-:custom::conf/conf-ld-x
+-L/usr/X/lib
+.
+
+@sunos-:sunos-::gcc-:::conf/conf-ld-x
+-L/usr/X/lib
+.
+
+@sunos-:sunos-::sunpro-:::conf/conf-ld-x
+-L/usr/X/lib
+.
+
+
+
+;;
+;; conf/conf-maint
+;;
+;; user who compiled the package
+;;
+@-:-::-:::conf/conf-maint
+${user}@${host}
+.
+
+
+
+;;
+;; conf/conf-man
+;;
+;; directory to store manual pages.
+;;
+@-:-::-::local:conf/conf-man
+man
+.
+
+@gentoo-:-::-::local:conf/conf-man
+share/man
+.
+
+@-:-::-::base:conf/conf-man
+share/man
+.
+
+@-:-::-::opt:conf/conf-man
+share/man
+.
+
+@-:-::-::home:conf/conf-man
+man
+.
+
+@-:-::-::prefix:conf/conf-man
+man
+.
+
+@-:-::-::devel:conf/conf-man
+share/man
+.
+
+@-:-::-::pkglocal:conf/conf-man
+man
+.
+
+@gentoo-:-::-::pkglocal:conf/conf-man
+share/man
+.
+
+@-:-::-::pkgbase:conf/conf-man
+share/man
+.
+
+@-:-::-::pkgprefix:conf/conf-man
+man
+.
+
+
+
+;;
+;; conf/conf-perl
+;;
+;; shebang path for perl
+;;
+@-:-::-:::conf/conf-perl
+#!/usr/local/bin/perl
+.
+
+; darwin has perl in base system
+@darwin-:darwin-::-:::conf/conf-perl
+#!/usr/bin/perl
+.
+
+
+; freebsd has perl in base system (sometimes?)
+@freebsd-:freebsd-::-:::conf/conf-perl
+#!/usr/bin/perl
+.
+
+
+; gentoo has perl in base system
+@gentoo-:linux-::-:::conf/conf-perl
+#!/usr/bin/perl
+.
+
+; openbsd has perl in base system
+@openbsd-:openbsd-::-:::conf/conf-perl
+#!/usr/bin/perl
+.
+
+;;
+;; conf/conf-piddir
+;;
+;; pidfile directory.  A pidfile is a file containing the process id of
+;; a running daemon.
+;;
+@-:-::-:::conf/conf-piddir
+/var/run
+.
+
+@-:-::-::opt:conf/conf-piddir
+/var/opt/makeutil/run
+.
+
+@-:-::-::home:conf/conf-piddir
+${home}/run
+.
+
+@-:-::-::prefix:conf/conf-piddir
+${prefix}/run
+.
+
+@-:-::-::pkgprefix:conf/conf-piddir
+${prefix}/run
+.
+
+
+
+;;
+;; conf/conf-pkgbin
+;;
+;; package directory for bin packages.  Only used in the pkg*
+:; pdesc.
+;;
+@-:-::-:::conf/conf-pkgbin
+makeutil-bin-head
+.
+
+
+
+;;
+;; conf/conf-pkgdev
+;;
+;; package directory for dev packages.  Only used in the pkg*
+:; pdesc.
+;;
+@-:-::-:::conf/conf-pkgdev
+makeutil-dev-head
+.
+
+
+
+;;
+;; conf/conf-pkgdoc
+;;
+;; package directory for doc packages.  Only used in the pkg*
+:; pdesc.
+;;
+@-:-::-:::conf/conf-pkgdoc
+makeutil-doc-head
+.
+
+
+
+;;
+;; conf/conf-pkgetc
+;;
+;; package directory for etc packages.  Only used in the pkg*
+:; pdesc.
+;;
+@-:-::-:::conf/conf-pkgetc
+makeutil-etc-head
+.
+
+
+
+;;
+;; conf/conf-prefix
+;;
+;; program prefix directory.  programs will be installed in .../bin.
+;; libraries will be installed in .../lib.  documentation will be
+;; installed in .../man.  this directory should probably be in
+;; conf-vpath as well.  See also conf-root.
+;;
+@-:-::-::local:conf/conf-prefix
+/usr/local
+.
+
+@-:-::-::base:conf/conf-prefix
+/
+.
+
+@-:-::-::opt:conf/conf-prefix
+/opt/makeutil
+.
+
+@-:-::-::home:conf/conf-prefix
+${home}
+.
+
+@-:-::-::prefix:conf/conf-prefix
+${prefix}
+.
+
+@-:-::custom-:custom:devel:conf/conf-prefix
+/opt/makeutil/makeutil-head/${os}/${osversion}/${arch}/${cc}/${ccversion}/rel-custom
+.
+
+@-:-::-:opt:devel:conf/conf-prefix
+/opt/makeutil/makeutil-head/${os}/${osversion}/${arch}/${cc}/${ccversion}/rel-O
+.
+
+@-:-::-:debug:devel:conf/conf-prefix
+/opt/makeutil/makeutil-head/${os}/${osversion}/${arch}/${cc}/${ccversion}/rel-g
+.
+
+@-:-::-:prof:devel:conf/conf-prefix
+/opt/makeutil/makeutil-head/${os}/${osversion}/${arch}/${cc}/${ccversion}/rel-p
+.
+
+@-:-::-::pkglocal:conf/conf-prefix
+/usr/local
+.
+
+@-:-::-::pkgbase:conf/conf-prefix
+/
+.
+
+@-:-::-::pkgprefix:conf/conf-prefix
+${prefix}
+.
+
+
+
+;;
+;; conf/conf-root
+;;
+;; root directory for installation.  Installed programs will ignore
+;; this setting, allowing the installation to be virtualized.
+;;
+@-:-::-:::conf/conf-root
+/
+.
+
+@-:-::-::pkglocal:conf/conf-root
+root
+.
+
+@-:-::-::pkgbase:conf/conf-root
+root
+.
+
+@-:-::-::pkgprefix:conf/conf-root
+root
+.
+
+
+
+;;
+;; conf/conf-tmpdir
+;;
+;; tmp directory.
+;;
+@-:-::-:::conf/conf-tmpdir
+/tmp
+.
+
+$Id: config.db,v 1.3 2006/06/29 02:02:53 aisa0 Exp $

@@ -1,0 +1,735 @@
+|--------------------------------------------------(0x01)------------(b00t)--|
+
+;;;;
+;;;; b00t - bootstrap lisp environment
+;;;;
+;;;; b00t is a small lisp interpreter, intended to be used to bootstrap
+;;;; a larger environment.  as such, it is entirely contained in a
+;;;; single file that, once built, can control the build process from
+;;;; that point.  b00t uses a dialect of lisp called l1sp--level-one
+;;;; lisp, a small but flexible lisp implementation.  it is a symbol-
+;;;; manipulation environment only.  it has no support for arithmetic.
+;;;; it also lacks any data structures beyond the cons cell.
+;;;;
+;;;; b00t is not designed to run large programs!  it is neither fast
+;;;; nor scalable.  it runs programs of the size included here quite
+;;;; well, however.
+;;;;
+;;;; the first argument to b00t is the program to run.  subsequent
+;;;; arguments are passed to this program.
+;;;;
+
+
+|--------------------------------------------------(0x02)--------(programs)--|
+
+;;;;
+;;;; b00t programs
+;;;;
+
+;;; help - provide help on commands
+;;;
+;;; b00t help command
+;;;
+
+;;; rubout - remove file
+;;;
+;;; b00t rubout file
+;;;
+;;; |rubout| removes |file|.  a path search is not performed--it is
+;;; presumed that all derived files (and hence files one would wish
+;;; to remove) are in the local directory.
+;;;
+
+;;; vpath - find file in path 
+;;;
+;;; b00t vpath file
+;;;
+;;; |vpath| loads the view path from the file |conf/conf-vpath|. it
+;;; performs a path search for |file| in the view path, writing the
+;;; the full path to the first regular file to the standard output.
+;;;
+;;; if |file| cannot be located in the view path, |file| is returned
+;;; with no path information.
+;;;
+;;; this program mimics the view path search performed by make(1),
+;;; allowing other tools in the build chain to locate files. 
+;;;
+
+
+|--------------------------------------------------(0x03)----------(syntax)--|
+
+;;;;
+;;;; l1sp syntax
+;;;;
+;;;; this section describes the syntax of l1sp, level-one lisp.
+;;;;
+
+;;; comments
+;;;
+;;; this line is a comment.  a comment begins with a ';' and continues to
+;;; the end of the line.  the number of ';' characters at the beginning of
+;;; a line indicates the "level" of the comment:
+;;;
+;;;  ;    - used for small annotations in the source.  often written
+;;;         on the same line as the source itself.
+;;;  ;;   - used to describe the purpose of several lines of code,
+;;;         always indented at the same level of the code the comment
+;;;         describes.
+;;;  ;;;  - used to describe procedures and other major code blocks.
+;;;         always left aligned.
+;;;  ;;;; - used to describe major sections of the program, containing
+;;;         multiple related procedures.
+;;;
+
+;;; symbols
+;;;
+;;; bare (unquoted) symbols consist of alphabetic, numeric, and all
+;;; punctuation *except* the following:
+;;;
+;;;  '"', ''', '(', ')', ',', ';', '`'
+;;;
+;;; a symbol containing reserved punctuation or non alphanumeric characters
+;;; may be quoted with '"', in which the following escapes are recognized:
+;;;
+;;;   '\"'   = literal '"'
+;;;   '\n'   = line feed
+;;;   '\t'   = tab
+;;;   '\xxx' = octal encoding of the ascii value for this character
+;;;
+;;; additionally, a quoted symbol is not evaluated by the reader, but it
+;;; would be if passed to |eval|.
+;;;
+;;; symbols, whether bare or quoted, may *not* include nil ('\0')
+;;; characters.
+;;;
+
+
+;;; cons
+;;;
+;;; cons cells contain pointers to two other objects, called the car and
+;;; cdr of the cons.
+;;;
+;;; (a . b)  = a is the car, b is the cdr.
+;;;
+;;; cons cells are the building blocks of list objects, which are
+;;; collections of cons cells with the cdr pointing to another cons:
+;;;
+;;; (a b c) => (a . (b . (c . nil)))
+;;;
+
+;;; misc syntax
+;;;
+;;;   'a  = sugar for |(quote a)|.
+;;;   `a  = sugar for |(quasiquote a)|.
+;;;   ,a  = sugar for |(unquote a)|.
+;;;   ,@a = sugar for |(unquote-splice a)|.
+;;;
+
+
+|--------------------------------------------------(0x04)------(procedures)--|
+
+;;;;
+;;;; l1sp procedures and variables
+;;;;
+;;;; this section describes the procedures and variables of l1sp,
+;;;; level-one lisp.
+;;;;
+;;;; in the examples below, the symbol '=>' means "evaluates to." 
+;;;; the expression on the right results from evaluating the
+;;;; expression on the left.
+;;;;
+;;;; the symbol '==' means "is equivalent to."  the expression on
+;;;; the left is another way of stating the expression on the right.
+;;;;
+;;;; the symbol '!>' means "writes out."  the output on the right is
+;;;; printed to the standard output (or standard error if specified
+;;;; in the documentation for that procedure) when the expression on
+;;;; the left is evaluated.
+;;;;
+
+;;; apply - call procedure with arguments
+;;;
+;;; (apply p l)
+;;; (p ...)
+;;;
+;;; |apply| calls the procedure |p| with the arguments in the list
+;;; |l|.  if |p| is not a procedure, |die|.  if |l| is not a list,
+;;; |die|.  otherwise, return the result from |p|.
+;;;
+;;; |apply| is often used to pass a dynamically generated argument
+;;; list to a procedure.
+;;;
+;;; examples:
+;;;
+;;;   (apply car '(a b)) => a
+;;;   (apply cdr '(a b)) => (b)
+;;;
+;;; see also: |eval|
+;;;
+
+;;; atomp - atom predicate
+;;;
+;;; (atomp l)
+;;;
+;;; if |l| is a symbol or |nil|, return |t|.  otherwise, return |nil|.
+;;;
+;;; examples:
+;;;
+;;;  (atomp ())   => t
+;;;  (atomp 'a)   => t
+;;;  (atomp "a")  => t
+;;;  (atomp '(a)) => nil
+;;;
+;;; see also: |consp|, |nilp|
+;;;
+
+;;; car - return the |car| of a cons cell.
+;;;
+;;; (car l)
+;;;
+;;; |car| returns the car cell for the pair |l|.  if |l| is not a
+;;; cons cell, |die|.
+;;;
+;;; examples:
+;;;
+;;;   (car '(a . b))       => a
+;;;   (car '(a b))         => a
+;;;   (car '((a b) (c d))) => (a b)
+;;;
+;;; see also: |cdr|, |cons|, |rplaca|
+;;;
+
+;;; cat - concatenate symbols
+;;;
+;;; (cat ...)
+;;;
+;;; |cat| allocates a new symbol by concatenating every symbol in
+;;; |...|.  if memory for the new symbol cannot be allocated, |die|.
+;;; if any argument in |...| is not a symbol, |die|.  otherwise,
+;;; return the new symbol.  see also |cons|, which is used to create
+;;; new cons cells.
+;;;
+;;; examples:
+;;;
+;;;  (cat 'a)       => a
+;;;  (cat 'a 'b)    => ab
+;;;  (cat 'a 'b 'c) => abc
+;;;
+;;; see also: |cons|
+;;;
+
+;;; cdr - return the |cdr| of a cons cell.
+;;;
+;;; (cdr l)
+;;;
+;;; |cdr| returns the cdr cell for the pair |l|.  if |l| is not a
+;;; cons cell, |die|.
+;;;
+;;; examples:
+;;;
+;;;   (cdr '(a . b))       => b
+;;;   (cdr '(a b))         => (b)
+;;;   (cdr '((a b) (c d))) => (c d)
+;;;
+;;; see also: |car|, |cons|, |rplacd|
+;;;
+
+;;; cond - conditional evaluation
+;;;
+;;; (cond (test0 e1 e2 ... eN)
+;;;       (test1 e1 e2 ... eN)
+;;;       (t     e1 e2 ... eN))
+;;;
+;;; |cond| evaluates each test expression (|test0|, |test1|, ...)
+;;; in order.  the first expression that returns a non-|nil| value
+;;; causes |cond| to stop evaluating test expressions and evaluate
+;;; each expression (|e1|, |e2|, |...|, |eN|), returning the result
+;;; of |eN|.
+;;;
+;;; a test expression of |t| is used to indicate a default condition.
+;;;
+;;; if none of the test expressions evaluate non-|nil|, |cond|
+;;; returns |nil|.
+;;;
+;;; if a test form evaluates non-|nil|, but has no body, the result
+;;; of evaluating the test form is returned.
+;;;
+;;; examples:
+;;;
+;;;   (cond)                                                       => ()
+;;;   (cond (t))                                                   => t
+;;;   (cond (t 'a))                                                => a
+;;;   (cond (nil 'a))                                              => ()
+;;;   (cond ((atomp 'a) 'a) (t 'b)) == (cond ((atomp 'a) 'a) ('b)) => a
+;;;   (cond ((consp 'a) 'a) (t 'b)) == (cond ((consp 'a) 'a) ('b)) => b
+;;;
+;;; see also: |quote|
+;;;
+
+;;; cons - construct list
+;;;
+;;; (cons x y)
+;;;
+;;; |cons| allocates a new cons cell, with |x| as the |car| and |y|
+;;; as the |cdr|.  if a new cons cell cannot be allocated, |die|.
+;;; otherwise, return the new cell.  see also |cat|, which is used
+;;; to create new symbols.
+;;;
+;;; examples:
+;;;
+;;;   (cons 'a 'b)                          => (a . b)
+;;;   (cons 'a (cons 'b nil)) == (list a b) => (a b)
+;;;   (cons 'a '(b))                        => (a b)
+;;;   (cons '(a) 'b)                        => ((a) . b)
+;;;
+;;; see also: |car|, |cat|, |cdr|, |list|
+;;;
+
+;;; consp - cons cell predicate
+;;;
+;;; (consp l)
+;;;
+;;; if |l| is a cons cell or |nil|, return |t|.  otherwise, return |nil|.
+;;;
+;;; examples:
+;;;
+;;;  (consp ())   => t
+;;;  (consp 'a)   => nil
+;;;  (consp "a")  => nil
+;;;  (consp '(a)) => t
+;;;
+;;; see also: |atomp|, |nilp|
+;;;
+
+;;; def - define variable
+;;;
+;;; (def n v)
+;;;
+;;; assign the previously unbound variable |n| the value |v|.  return the
+;;; pair |(n . v)| from the current environment.
+;;;
+;;; if |n| is already bound, |die|.
+;;;
+;;; see also: |evlist|, |oblist|, |set|
+;;;
+
+;;; die - abort the virtual machine and terminate the process
+;;;
+;;; (die l)
+;;;
+;;; |die| prints an error message to standard error before aborting
+;;; the virtual machine and exiting with a status of |0x80|.  |die|
+;;; does not return.  |die| should be used for abnormal termination.
+;;; for normal termination, see |exit|.
+;;;
+;;; examples:
+;;;
+;;;  (die '(a)) !> runtime error (a)
+;;;
+;;; see also: |exit|
+;;;
+
+;;; eqp - equivalence predicate
+;;;
+;;; (eqp x y)
+;;;
+;;; |eqp| return |t| if |x| and |y| are the same, |nil| otherwise.
+;;; a symbol will always be |eqp| to itself, but |eqp| also performs
+;;; a deep comparison, so lists that are not pointer equivilent can
+;;; still be |eqp| to each other.
+;;;
+;;; examples:
+;;;
+;;;  (eqp 'a 'a)                   => t
+;;;  (eqp 'a 'b)                   => ()
+;;;  (eqp '(a) '(a))               => t
+;;;  ((lambda (l) (eqp l l)) '(a)) => t
+;;;
+;;; see also: |nil|, |t|
+;;;
+
+;;; eval - evaluate expression
+;;;
+;;; (eval l)
+;;;
+;;; |eval| provides runtime access to the evaluator.
+;;; |eval| evaluates |l|, as if it has been entered 
+;;; directly into the reader.  it can be used to
+;;; evaluate dynamically generated code at runtime.
+;;;
+;;; examples:
+;;;
+;;;   (eval ''a)            => a
+;;;   (eval '(car '(a . b)) => a
+;;;   (eval '(cdr '(a . b)) => b
+;;;
+;;; see also: |apply|, |rdsexp|
+;;;
+
+;;; evlist - return the current environment
+;;;
+;;; (evlist)
+;;;
+;;; |evlist| returns a list of lists.  each of these lists contains
+;;; cons cells representing name/value pairs for the current environment.
+;;; if a pair appears in the environment list, an |eval| of the |car| of
+;;; that pair will return the |cdr| of that pair.
+;;;
+;;; see also: |def|, |lambda|, |oblist|, |prognam|, |set|
+;;;
+
+;;; exit - perform normal program termination
+;;;
+;;; (exit)
+;;;
+;;; |exit| terminates the program with a status of |0x0|.  |exit|
+;;; does not return.  for abnormal termination, see |die|.
+;;;
+;;; see also: |die|
+;;;
+
+;;; find - run procedure for each element in list
+;;;
+;;; (find p l)
+;;; (p l)
+;;;
+;;; |find| calls |p| for each |car| of |l|.  if |p| returns a
+;;; non-|nil| value, |find| returns that result immediately, without
+;;; iterating over the rest of |l|.  if |p| returns |nil| for every
+;;; |car| in |l|, |find| returns |nil|.  if |p| is not a procedure,
+;;; |die|.  if |l| is not a list, |die|.
+;;;
+;;; examples:
+;;;
+;;;  (find (lambda (l) (consp l)) '(a b c))   => ()
+;;;  (find (lambda (l) (consp l)) '(a (b) c)) => t
+;;;
+;;; see also: |map|
+;;;
+
+
+;;; flush - flush output buffer
+;;;  
+;;; (flush)
+;;;
+;;; write any buffered data to standard output.  if the data cannot
+;;; be written, |die|.  otherwise, return |nil|.
+;;;
+;;; see also: |grindef|, |print|, |terpri|
+;;;
+
+;;; gc - garbage collection
+;;;
+;;; (gc)
+;;;
+;;; preemptively run the garbage collector.  the |oblist| will be
+;;; cleared of any symbols only referenced there.  return |nil|.
+;;;
+;;; there is normally no reason to call |gc| manually, it is done
+;;; automatically when space is needed.
+;;;
+;;; see also: |oblist|
+;;;
+
+;;; grindef - grind out definition
+;;;
+;;; (grindef l)
+;;;
+;;; print the expression |l| to the standard output.  |l| is printed
+;;; as a full expression that can be read by |rdsexp|.  if the
+;;; expression cannot be printed, |die|.  otherwise, return |l|.
+;;;
+;;; |grindef| performs a buffered write.  the data may not appear
+;;; until |flush| or |terpri| is called.
+;;;
+;;; examples:
+;;;
+;;;  (grindef 'a)       !> a
+;;;  (grindef '(a . b)) !> (a . b)
+;;;
+;;; see also: |flush|, |print|, |rdsexp|, |terpri|
+;;;
+
+;;; lambda - define closure
+;;;
+;;; (lambda (l0 l1 ... lN) e0 e1 ... eN)
+;;; (lambda l e0 e1 ... eN)
+;;;
+;;; |lambda| returns a procedure that when invoked evaluates
+;;; |e0 e1 ... eN| expecting arguments |l0 l1 ... lN|.  alternately, the
+;;; entire argument list may be bound to a single variable using the
+;;; second (list) form of |lambda|.
+;;;
+;;; |lambda| procedures are statically scoped, meaning that |lambda|
+;;; also creates a closure over the current environment.  in this way you
+;;; can use them as generators:
+;;;
+;;;   (def 'cat0 (((lambda (p) (lambda (s) (cat p s))) "cat0-")))
+;;;   (def 'cat1 (((lambda (p) (lambda (s) (cat p s))) "cat1-")))
+;;;
+;;;   (cat0 "foo") => cat0-foo
+;;;   (cat0 "bar") => cat0-bar
+;;;   (cat1 "foo") => cat1-foo
+;;;   (cat1 "bar") => cat1-bar
+;;;
+;;; the first form of |lambda| is limited to 4 arguments.  the
+;;; second (list) form of |lambda| accepts any number of arguments.
+;;;
+;;; see also: |evlist|, |macro|
+;;;
+
+;;; list - create list
+;;;
+;;; (list ...)
+;;;
+;;; |list| returns |...| as a list.
+;;;
+;;; examples:
+;;;
+;;;  (list 'a 'b 'c)          => (a b c)
+;;;  (list '(a b c) '(d e f)) => ((a b c) (d e f))
+;;;
+;;; see also: |cat|, |cons|
+;;;
+
+;;; macro - define new special form
+;;;
+;;; (macro (l0 l1 ... lN) e0 e1 ... eN)
+;;; (macro l e0 e1 ... eN)
+;;;
+;;; |macro| behaves exactly like |lambda|, save that it does not
+;;; evaluate it's arguments.  instead, after it is read, it is
+;;; immediately evaluated and the expression returned is used in
+;;; place of |macro|.  that expression is evaluated normally.
+;;;
+;;; examples:
+;;;
+;;;   ((macro (l) (car (car l))) '((a))) == (car (car '((a)))) => a
+;;;
+;;; see also: |lambda|, |quasiquote|
+;;;
+
+;;; map - run procedure for each element in list
+;;;
+;;; (map p l)
+;;; (p l)
+;;;
+;;; |map| calls |p| for each |car| of |l|.  it constructs a new
+;;; list from the result of |p|, and returns that list.  if |p|
+;;; is not a procedure, |die|.  if |l| is not a well-formed list,
+;;; |die|.
+;;;
+;;; examples:
+;;;
+;;;  (map (lambda (l) (atomp l)) '(a (b) c)) => (t () t)
+;;;  (map (lambda (l) (consp l)) '(a (b) c)) => (() t ())
+;;;
+;;; see also: |find|
+;;;
+
+
+;;; nil, () - canonical false, empty list
+;;;
+;;; nil, ()
+;;;
+;;; |nil| is a special object.  it is the canonical false value, returned
+;;; by any predicate (|atomp|, |consp|, |nilp|, |eqp|) to indicate the
+;;; assertion is not satisfied.
+;;;
+;;; |nil| is also the empty list.
+;;;
+;;; examples:
+;;;
+;;;   nil == () => ()
+;;;
+;;; see also: |t|
+;;;
+
+;;; nilp - nil predicate
+;;;
+;;; (nilp l)
+;;;
+;;; if |l| is |nil|, return |t|.  otherwise, return |nil|.
+;;;
+;;; examples:
+;;;
+;;;  (nilp ())   => t
+;;;  (nilp 'a)   => nil
+;;;  (nilp "a")  => nil
+;;;  (nilp '(a)) => nil
+;;;
+;;; see also: |atomp|, |consp|
+;;;
+
+;;; oblist - return the bound object list
+;;;
+;;; (oblist)
+;;;
+;;; |oblist| returns a list containing every symbol currently loaded
+;;; into the virtual machine.  if a symbol appears in |oblist|, but
+;;; nowhere else, the next garbage collection cycle will clear it from
+;;; the object list.
+;;;
+;;; see also: |def|, |evlist|, |gc|, |prognam|, |set|
+;;;
+
+;;; print - print symbol
+;;;
+;;; (print l)
+;;;
+;;; print the symbol |l| to the standard output.  if the symbol
+;;; cannot be printed, |die|.  if |l| is not a symbol, |die|.
+;;; otherwise, return |l|.
+;;;
+;;; |print| performs a buffered write.  the data may not appear
+;;; until |flush| or |terpri| is called.
+;;;
+;;; examples:
+;;;
+;;;  (print 'a)            !> a
+;;;  (print "hello world") !> hello world
+;;;
+;;; see also: |flush|, |grindef|, |terpri|
+;;;
+
+;;; prognam - program name
+;;;
+;;; prognam
+;;;
+;;; |prognam| is the basename of argv[0].  it is the name of the program
+;;; we are executed as.
+;;;
+;;; see also: |evlist|, |oblist|
+;;;
+
+;;; quasiquote, ` - conditional |quote|
+;;;
+;;; (quasiquote l), `l
+;;;
+;;; |quasiquote| acts as a |quote|, except that it permits
+;;; conditional evaluation of expressions inside the quoted
+;;; expression.  it is used when an expression should be
+;;; mostly quoted, usually in conjuction with |macro|.
+;;;
+;;; conditional evaluation is achieved through |unquote| and
+;;; |unquote-splicing|.  the value of each |unquote| expression
+;;; is inserted into the expression in place of the |unquote|
+;;; form.  the value of each |unquote-splicing| expression is
+;;; spliced into the surrounding list.  any expressions outside
+;;; of these two forms are quoted as if by |quote|.
+;;;
+;;; |quasiquote| expressions can be nested, with each |quasiquote|
+;;; introducing a new level of quotation and each |unquote| or
+;;; |unquote-splicing| taking away a level of quotation.
+;;;
+;;; |unquote| and |unquote-splicing| are not defined outside of
+;;; |quasiquote|.
+;;;
+;;; examples:
+;;;
+;;;   (quasiquote l)                        == `l            => l
+;;;   `,(car '(a . b))                                       => a
+;;;   ((macro (l) `(car (car ,l))) '((a)))  == (caar '((a))) => a
+;;;
+;;; see also: |macro|, |quote|
+;;;
+
+;;; quote, ' - inhibit evaluation of expression
+;;;
+;;; (quote l), 'l
+;;;
+;;; |quote| returns |l| without evaluating it.  it is used to return an
+;;; expression without it being processed by the evaluator.
+;;;
+;;; examples:
+;;;
+;;;   (quote a)          == 'a          => a
+;;;   (quote (a b))      == '(a b)      => (a b)
+;;;   (quote (cons a b)) == '(cons a b) => (cons a b)
+;;;
+;;; see also: |cond|, |quasiquote|
+;;;
+
+;;; rplaca - replace car
+;;;
+;;; (rplaca n v)
+;;;
+;;; if |n| satifies |(consp n)|, set the car of |n| to |v| and
+;;; return |n|.  if |n| satisfies |(nilp n)| return |n|.
+;;; otherwise |die|.
+;;;
+;;; examples:
+;;;
+;;;   (rplaca '(a . b) '1) => (1 . b)
+;;;   (rplaca '() '2)      => ()
+;;;
+;;; see also: |car|, |rplacd|
+;;;
+
+;;; rplacd - replace cdr
+;;;
+;;; (rplacd n v)
+;;;
+;;; if |n| satifies |(consp n)|, set the cdr of |n| to |v| and
+;;; return |n|.  if |n| satisfies |(nilp n)| return |n|.
+;;; otherwise |die|.
+;;;
+;;; examples:
+;;;
+;;;   (rplacd '(a . b) '1) => (a . 1)
+;;;   (rplacd '() '2)      => ()
+;;;
+;;; see also: |cdr|, |rplaca|
+;;;
+
+;;; rdsexp - read symbolic expression
+;;;
+;;; (rdsexp)
+;;;
+;;; read a symbolic expression from standard input.  return the
+;;; read expression.  if an invalid expression is read, |die|.
+;;;
+;;; see also: |eval|, |grindef|
+;;;
+
+;;; set - assign new value to already defined variable
+;;;
+;;; (set n v)
+;;;
+;;; assign bound variable |n| the value |v|.  return the pair
+;;; |(n . v)| from the current environment.  the previous
+;;; value for |n| is discarded.
+;;;
+;;; see also: |def|, |evlist|, |oblist|
+;;;
+
+;;; t - canonical truth
+;;;
+;;; t
+;;;
+;;; |t| is the canonical truth value.  it is returned by any predicate
+;;; (|atomp|, |consp|, |nilp|, |eqp|) to indicate the assertion is
+;;; satisfied.
+;;;
+;;; see also: |nil|
+;;;
+
+;;; terpri - terminate print line
+;;;  
+;;; (terpri)
+;;;
+;;; print a line feed to standard output.  if a line feed
+;;; cannot be printed, |die|.  otherwise, return |nil|.
+;;;
+;;; |terpri| will |flush| the output after printing a line
+;;; feed.
+;;;
+;;; see also: |flush|, |grindef|, |print|
+;;;
+
+
+|---------------------------------------------------------------------(eof)--|
+$Id: README.b00t,v 1.3 2006/07/25 02:29:15 aisa0 Exp $
+
+                                                                         ..__
+                                                                         `' "

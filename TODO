@@ -1,0 +1,17 @@
+|--------------------------------------------------(0x01)------------(todo)--|
+
+  * import my static-tree tool.
+  * use this tool to build online build documentation for b00t.
+  * add |help| command to b00t.  using static-tree tool and
+    compression library.
+  * add |sysinfo| command to b00t, possibly in a second-stage
+    build.
+  * create tool for evaluation of l1sp expressions btetween {}
+    brackets in regular text.
+
+
+|---------------------------------------------------------------------(eof)--|
+$Id: TODO,v 1.1 2006/06/29 02:02:53 aisa0 Exp $
+
+                                                                         ..__
+                                                                         `' "

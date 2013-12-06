@@ -1,0 +1,66 @@
+;;;;
+;;;; init - shared initialization for all b00t modules
+;;;;
+
+
+;;;
+;;; l1sp initialization
+;;;
+
+;; (defq n v)
+(def 'defq (macro (n v) `(def ',n ,v)))
+
+;; (defmacro function-name (arguments...) body...)
+(defq defmacro (macro l `(defq ,(car l) (macro ,@(cdr l)))))
+
+;; (defun function-name (arguments...) body...)
+(defmacro defun l `(defq ,(car l) (lambda ,@(cdr l))))
+
+(defmacro caar (l) `(car (car ,l)))
+(defmacro cadr (l) `(car (cdr ,l)))
+(defmacro cdar (l) `(cdr (car ,l)))
+(defmacro cddr (l) `(cdr (cdr ,l)))
+
+(defmacro if (c t f) `(cond (,c ,t) (,f)))
+
+(defq not nilp)
+(defmacro com (p) `(lambda l (not (apply ,p l))))
+
+
+;;;
+;;; b00t initialization
+;;;
+
+;; |conf-vpath| is included directly by make, so it is a name
+;; value pair.  the value is a path spec.  parse this line
+;; into a list of view paths.
+;;
+(defq VPATH (split (cadr (split (read1 "conf-vpath") "=")) ":"))
+
+
+;; determine the view path of |file|.
+;;
+(defun vpath (file)
+  ;; if we find |file| in |dir|, return the path to |file|.
+  ;; otherwise return |nil|.
+  ;;
+  (defun search (dir)
+    (defq path (cat dir "/" file))
+    (if (exist path) path))
+
+  ;; map over |VPATH| looking for |file|.
+  ;;
+  (defq path (find (com nilp) (map search VPATH)))
+
+  (if path path file))
+
+
+;; include directory support
+;;
+(defun incname (l)
+  (defq incdir-O  "o")
+  (defq incdir-g  "go")
+  (defq incdir-p  "po")
+  (defq incdir-so "so")
+
+  (eval (cat "incdir-" l)))

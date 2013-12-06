@@ -1,0 +1,69 @@
+|--------------------------------------------------(0x01)-------(changelog)--|
+
+--[28.Jun.2006] aisa -
+    + document mkdep.
+    + finish README.b00t documentation.
+    + add b00t.c, a simple lisp interpreter.
+    + add remaining files in distribution to test target.
+    + update mksystype for several linux platforms.
+
+--[22.Jun.2006] aisa -
+    + add more documentation to README.b00t.
+    + add TODO file listing future work.
+
+--[20.Jun.2006] aisa -
+    + remove all references to automeek from config.db.
+    + remove *-sys targets from config.db.  i've never used them.
+
+--[18.Jun.2006] aisa -
+    + add README.b00t in anticipation of importing b00t.c.  i haven't
+      finished the documentation for every routine yet.
+    + shut up compiler warnings by renaming main to func in forarg.c
+    + remove all references to lace and savant from config.db.
+    + minor gentoo fixes in config.db.
+    + create an |opt| pdesc for installing software into /opt.
+    + add conf-ld-so to config.db, containing the extension we expect
+      for shared libraries--preliminary support for shared libraries
+      on darwin.
+    + remove cross compilation support from config.db, it never
+      worked properly in the first place.
+    + add -Wno-missing-braces to all devel-style gcc lines in
+      config.db.  when we statically allocate system-defined
+      structures, (like jmp_buf) we can't portably get our braces
+      correct.
+    + add -fno-strict-aliasing to all gcc lines in config.db.
+    + improve freebsd and redhat systype detection.  use the correct
+      perl on freebsd.
+
+--[24.Feb.2005] aisa -
+    + actually include mkstring in the release. (oops)
+    + add mkdep utility
+
+--[13.Dec.2004] aisa -
+    + makeutil version 0.2.0 released
+
+--[10.Dec.2004] aisa -
+    + switch dist target to use openssl for md5 and sha1 checksums.
+      openssl is available on a wider variety of platforms.
+    + continuing documentation cleanup
+
+--[09.Dec.2004] aisa -
+    + oof, included an old version of config.c.  updated to one
+      that actually works with config.db
+    + the extract format text archive is now bzip2 compressed
+    + better documentation in the README
+    + update web page
+
+--[01.Dec.2004] aisa -
+    + add mkstring utility
+    + minor correction to testarray.c
+
+--[28.Nov.2004] aisa -
+    + makeutil version 0.1.0 released
+
+
+|---------------------------------------------------------------------(eof)--|
+$Id: Changes,v 1.5 2006/06/29 02:02:53 aisa0 Exp $
+
+                                                                         ..__
+                                                                         `' "

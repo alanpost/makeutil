@@ -1,0 +1,87 @@
+cc -c -o addcr.o addcr.c
+cc -c -o forarg.o forarg.c
+cc -o addcr addcr.o forarg.o
+cc -c -o armor.o armor.c
+cc -o armor armor.o forarg.o
+cc -c -o b00t.o b00t.c
+cc -o b00t b00t.o
+cc -c -o ccinfo.o ccinfo.c
+cc -o ccinfo ccinfo.o
+cc -c -o config.o config.c
+cc -o config config.o
+cc -c -o dearmor.o dearmor.c
+cc -o dearmor dearmor.o forarg.o
+cc -c -o delcr.o delcr.c
+cc -o delcr delcr.o forarg.o
+cc -c -o extract.o extract.c
+cc -o extract extract.o forarg.o
+cc -c -o mkarray.o mkarray.c
+cc -o mkarray mkarray.o
+cc -c -o mkdep.o mkdep.c
+cc -o mkdep mkdep.o
+cc -c -o mkstring.o mkstring.c
+cc -o mkstring mkstring.o
+cc -c -o retract.o retract.c
+cc -o retract retract.o forarg.o
+sh mksystype > systype || (rm -f systype && exit 1)
+cc -c -o testarray.o testarray.c
+./mkarray testarray.c array > test0.c || (rm -f test0.c && exit 1)
+cc -c -o test0.o test0.c
+cc -o testarray testarray.o test0.o
+cc -c -o teststring.o teststring.c
+./mkstring conf-pdesc string > test1.c || (rm -f test1.c && exit 1)
+cc -c -o test1.o test1.c
+cc -o teststring teststring.o test1.o
+cc -c -o textpack.o textpack.c
+cc -c -o tree.o tree.c
+./retract \
+README \
+README.b00t \
+AUTHORS \
+Changes \
+EXTERN \
+LICENSE \
+Makefile \
+TODO \
+VERSION \
+addcr.c \
+armor.c \
+b00t.c \
+bootstrap \
+ccinfo.c \
+ckey.c \
+conf-pdesc \
+config.c \
+config.db \
+dearmor.c \
+delcr.c \
+extract.c \
+forarg.c \
+mkarray.c \
+mkdep.c \
+mkstring.c \
+mksystype \
+retract.c \
+test.db \
+testarray.c \
+teststring.c \
+textpack.c \
+textpand.c \
+test.bl \
+test.db \
+textpack.c \
+textpand.c \
+tree.c \
+tree.h \
+unmake.c \
+> makeutil.text || (rm -f makeutil.text && exit 1)
+cc -c -o ckey.o ckey.c
+cc -o ckey ckey.o forarg.o
+./ckey < makeutil.text > freq.d || (rm -f freq.d && exit 1)
+./mkarray freq.d freq > freq.c || (rm -f freq.c && exit 1)
+cc -c -o freq.o freq.c
+cc -o textpack textpack.o tree.o freq.o forarg.o
+cc -c -o textpand.o textpand.c
+cc -o textpand textpand.o tree.o freq.o forarg.o
+cc -c -o unmake.o unmake.c
+cc -o unmake unmake.o

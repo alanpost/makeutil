@@ -1,0 +1,52 @@
+;;;
+;;; test - run regression tests
+;;;
+;;;  $ b00t test
+;;;
+
+(defmacro example (l)
+  (grindef l) 
+  (print " => ")
+  (grindef (eval l))
+  (terpri))
+
+(example (car '(a . b)))
+(example (cdr '(a . b)))
+
+(example (car '((a b) (c d) (e f))))
+(example (cdr '((a b) (c d) (e f))))
+(example (caar '((a b) (c d) (e f))))
+(example (cadr '((a b) (c d) (e f))))
+(example (cdar '((a b) (c d) (e f))))
+(example (cddr '((a b) (c d) (e f))))
+
+(example (cons 'a 'b))
+(example (cons 'a '(b)))
+
+; lambda
+;(example ((lambda (a) (list a)) 'a))
+;(example ((lambda (a) (list a)) 'a 'b))
+;(example ((lambda (a) (list a)) 'a 'b 'c))
+
+(example ((lambda (a0 a1 . a2) (list a0 a1 a2)) 'a 'b . 'c))
+(die)
+
+(example ((lambda (a b c) (list a b c))))
+;(example ((lambda (a b c) (list a b c)) 'a))
+;(example ((lambda (a b c) (list a b c)) 'a 'b))
+(example ((lambda (a b c) (list a b c)) 'a 'b 'c))
+;(example ((lambda (a b c) (list a b c)) '(a b c)))
+(example ((lambda l l) 'a 'b 'c))
+
+; quote
+(example ((lambda (l) '(cons a l)) 'b))
+(example ((lambda (l) '(cons a ,l)) 'b))
+
+; quasiquote
+(example ((lambda (l) `(cons a l)) 'b))
+(example ((lambda (l) `(cons a ,l)) 'b))
+
+(example ((lambda (l) `(list a ,l d e)) '(b c)))
+(example ((lambda (l) `(list a ,@l d e)) '(b c)))
+
+;(example ((lambda (l) `(list a ,l d e)) '(b c)))

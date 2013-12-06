@@ -1,0 +1,13 @@
+VPATH=.:/usr/local
+
+# this variable contains a colon-separated list of directories to
+# search for dependencies.  it should contain at least the object,
+# source, and install directories--in that order.
+#
+# you do not need to modify this file unless you have changed the
+# |pdesc| in |conf-pdesc|.  in that case, you will need to change
+# the install path to match the path specified in that file.
+#
+# this file is included directly by make.
+#
+# $Id: conf-vpath,v 1.1 2006/07/25 02:29:15 aisa0 Exp $

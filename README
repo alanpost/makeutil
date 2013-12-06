@@ -1,0 +1,346 @@
+|--------------------------------------------------(0x01)--------(makeutil)--|
+
+makeutil is a set of portable public domain programs designed to
+support C/C++ projects. It provides tools for build operations
+outside of the normal compile/link pipeline. It is designed to be
+unobtrusively included directly in your own software development
+project.
+
+The following programs are included:
+
+  --+<[    mksystype ]>+--
+  --+<[       ccinfo ]>+--
+
+together, these programs determine the platform they are being run
+on.  A platform consists of the following:
+
+  operating system     (openbsd, sunos, gentoo, debian)
+  kernel               (same as operating system exception on linux)
+  compiler             (gcc, sunpro, etc...)
+  chip architecture    (x86, powerpc, sparc64, etc...)
+  compiler description (optimized, debug, profiled, custom)
+  platform description (installation location)
+
+They generate a systype, which is a ':' separated line containing the
+above information:
+
+  os-version:kernel-version:arch:cc-version:ccdesc:pdesc
+
+This information is used by config (below) for system specific
+configuration.
+
+ccinfo ignores it's command line and prints out cc and cc-version to
+standard output:
+
+  +---+------------+
+  | x |  terminal  |
+  +---+------------+-----------------------------------------+
+  | $ ./ccinfo                                               |
+  | gcc-3.1.0                                                |
+  |                                                          |
+  +----------------------------------------------------------+
+
+mksystype calls ccinfo and reads conf-pdesc to display the pdesc:
+
+  +----------------------------------------------------------+
+  | $ sh mksystype                                           |
+  | darwin-6.8:darwin-6.8:powerpc:gcc-3.1.0:opt:local:       |
+  |                                                          |
+  +-----------------------------------------+---+------------+
+                                            | x |  terminal  |
+                                            +---+------------+
+
+
+  --+<[       config ]>+--
+
+This file retrieves the file specified on the command line from the
+config database.  The config database is a file mapping systype
+strings to files.
+
+config can be used to customize a file based on the system it is run
+on.  It is flexible in that a single config database entry can map
+to a range of system types (e.g. use this file when the platform is
+any version of sparc64/openbsd).
+
+In the future this package will make more extensive use of config.
+For the time being, I have included the file config.db, which is the
+configuration databases for another project of mine.  Please read
+that file for hints and ideas on using config.
+
+The |-I| option to config is used to include a config database.
+Multiple |-I| options may be specified if your database is split into
+several files.  |-p| is used to write the config entry to standard
+output instead of to the file named on the command-line.  If |-p| is
+not specified, the files on the command line are overwritten.
+
+                                            +------------+---+
+                                            |  terminal  | x |
+  +-----------------------------------------+------------+---+
+  | $ ./config -Iconfig.db -pconf/conf-cc                    |
+  | gcc -g -O2 -fno-common -DNDEBUG                          |
+  |                                                          |
+  +----------------------------------------------------------+
+
+
+  --+<[        mkdep ]>+--
+
+mkdep outputs any files #include'd by it's input file.  it does
+no recursion.  it is instead designed to integrate with a higher
+level tool to generate full dependency information.
+
+  +----------------------------------------------------------+
+  | $ ./mkdep mkdep.c                                        |
+  | stdio.h                                                  |
+  | stdlib.h                                                 |
+  | ctype.h                                                  |
+  |                                                          |
+  +-----------------------------------------+---+------------+
+                                            | x |  terminal  |
+                                            +---+------------+
+
+BUGS: mkdep does not handler #include directives of the form:
+
+        #include DEFINED_VARIABLE
+
+
+  --+<[         b00t ]>+--
+
+b00t is a small lisp interpreter, suitable for bootstrapping larger
+environments.  full documentation on b00t and it's interpreter
+can be found in README.b00t
+
+
+  --+<[      mkarray ]>+--
+
+mkarray converts its input file into a C array, which can then be
+compiled and linked into a program.
+
+In this manner, a file can be included directly into a program.  It
+is intended to be used to include help, usage, or license information
+directly into a program.
+
+  +----------------------------------------------------------+---+
+  | $ echo 'hello world' | ./mkarray - hello                 | x |
+  | /*                                                       +---+
+  |  * this file is automatically generated                  | t |
+  |  */                                                      | e |
+  |                                                          | r |
+  | #include <string.h>                                      | m |
+  |                                                          | i |
+  | char hello[]=                                            | n |
+  | {                                                        | a |
+  |       0x68,0x65,0x6c,0x6c,0x6f,0x2c,0x20,                | l |
+  |       0x77,0x6f,0x72,0x6c,0x64,0x0a,0x00,                +---+
+  | };                                                       |
+  |                                                          |
+  | size_t _hello_size=12;                                   |
+  | size_t *hello_size=&_hello_size;                         |
+  |                                                          |
+  +----------------------------------------------------------+
+
+This program will not output a header file, instead relying on you
+to externally declare the variables:
+
+  extern char hello[];
+  extern size_t _hello_size, *hello_size;
+
+For a cute trick, you could have this program output a source and
+header file in extract format (below) and use that tool to create
+two files.
+
+
+  --+<[     mkstring ]>+--
+
+mkstring converts the first line of its input file into a C string,
+which can then be compiled and linked into a program.
+
+In this manner, bits of information (like the program version) can
+be directly included into a program.
+
+                       +---+------------+
+                       | x |  terminal  |
+  +--------------------+---+------------+--------------------+
+  | $ echo 'hello, world' | ./mkstring - hello               |
+  | /*                                                       |
+  |  * this file is automatically generated                  |
+  |  */                                                      |
+  |                                                          |
+  | #include <string.h>                                      |
+  |                                                          |
+  | char hello[]="hello, world";                             |
+  |                                                          |
+  +----------------------------------------------------------+
+
+BUGS: currently this utility does not perform string escapes,
+      meaning things like a double quote on the first line will
+      cause problems when compiling the output from this program.
+
+
+  --+<[        armor ]>+--
+  --+<[      dearmor ]>+--
+
+These programs do binary<=>ascii conversion, in a manner identical
+to uuencode/uudecode.  Unlike those programs, armor/dearmor does not
+handle header information or file permissions, but instead handles
+only the contents of a single file.
+
+The primary use for these tools is including small amounts of binary
+data in an otherwise ascii-based source tree.  This way the file can
+be handled by text-only translation tools (e.g. retract and extract,
+below).
+
+  +---+------------+
+  | x |  terminal  |
+  +---+------------+-----------------------------------------+
+  | $ echo 'hello, world' | ./armor                          |
+  | -:&5L;&\L('=O<FQD"@``                                    |
+  |                                                          |
+  | $ echo 'hello, world' | ./armor | ./dearmor              |
+  | hello, world                                             |
+  |                                                          |
+  +----------------------------------------------------------+
+
+
+  --+<[      retract ]>+--
+  --+<[      extract ]>+--
+
+These tools are inspired by phrack magazine's file extraction format.  
+That format permits files to be embedded inside of other files,
+possibly with surrounding text that is not part of any file.  A file
+to extract is stored between a header and footer line:
+
+  non-file text
+  <++> filename
+  file contents
+  <-->
+
+The only difference between these tools and the phrack versions of
+these tools are the removal of unix-specific information (like file
+permissions).
+
+  +---+------------+
+  | x |  terminal  |
+  +---+------------+-----------------------------------------+
+  | $ echo 'hello, world' | ./retract -                      |
+  | <++> -                                                   |
+  | hello, world                                             |
+  | <-->                                                     |
+  | ^L                                                       |
+  |                                                          |
+  | $ echo 'hello, world' | ./retract - | ./extract          |
+  | hello, world                                             |
+  |                                                          |
+  +----------------------------------------------------------+
+
+Besides creating text archives, these tools can also be used to work
+on several text files in a stream:
+
+  retract *.c | sed s/foo/bar/ | extract
+
+As you can see in the above example, retract is used to create the
+text archive, while extract is used to retrive files from a text
+archive.
+
+
+  --+<[     textpack ]>+--
+  --+<[     textpand ]>+--
+  --+<[         ckey ]>+--
+
+These program perform very basic, inefficient file compression, using
+traditional huffman coding on eight-bit values.
+
+Like many simple compression programs, compression is faster than
+decompression.  This program also precomputers its frequency table,
+meaning that two passes are required to compress the data.
+
+The one situation where these tools are useful is compressing
+moderate amounts (several pages) of text inside of an executable.
+These programs usually compress ascii text about 40%, and they take
+less than a page of code space themselves.
+
+For small or large amounts of text, these tools don't make much sense
+to use.  You might like to investigate zlib for larger scale work.
+If you would like to learn about compression, these tools make a good
+place to start!
+
+
+  --+<[        addcr ]>+--
+  --+<[        delcr ]>+--
+
+These programs convert between unix and windows ascii file encoding.
+addcr adds a carriage return before every line feed in the file.
+delcr removes any carriage return before a line feed.  The one
+noteworthy thing about these programs is that they honor embeded
+carriage returns that are not before a line feed.
+
+You saw them here last!
+
+
+  --+<[       unmake ]>+--
+
+If you haven't given up on writing portable makefiles, you'll
+probably find yourself writing various tools like this.  Having one
+makefile include another is useful for creating a modular build
+system, but various versions of make do not agree on the syntax for
+include.  some use .include, which others might use -include.  The
+original syntax was a bare include at the beginning of the line.
+
+This program honors the original syntax, and create an uber-makefile
+by processing the include directives and sending the entire file to
+standard output.  You can use this file instead of Makefile to build
+the source tree:
+
+  +---+------------+
+  | x |  terminal  |
+  +---+------------+-----------------------------------------+
+  | $ make -fsub/makefile/with/no/includes unmake            |
+  | $ ./unmake Makefile | make -f-                           |
+  |                                                          |
+  +----------------------------------------------------------+
+
+
+
+|--------------------------------------------------(0x02)--------(contents)--|
+
+     (*((>-- AUTHORS ----- credits file ----------------------------<)
+      (*(>-- EXTERN ------ list of external dependencies -----------<))
+       ((>-- LICENSE ----- license for this software ---------------<)*)
+        (>-- Makefile ---- unix makefile ---------------------------<))*)
+       ((>-- README ------ basic description of this package -------<))*)
+      (*(>-- README.b00t - documentation for b00t lisp interpreter -<)*)
+     (*((>-- VERSION ----- version information for this package ----<))
+     (*((>-- addcr.c ----- add a '\r' before every '\n' ------------<)
+      (*(>-- armor.c ----- convert binary file to ascii ------------<))
+       ((>-- b00t.c ------ b00t bootstrap lisp interpreter ---------<)*)
+        (>-- bootstrap --- alternative (sans make) build -----------<))*)
+       ((>-- ccinfo.c ---- name compiler used to build program -----<))*)
+      (*(>-- ckey.c ------ generate frequency information ----------<)*)
+     (*((>-- conf-pdesc -- platform description configuration ------<))
+     (*((>-- config.c ---- chose file based on platform ------------<)
+      (*(>-- config.db --- platform configuration database ---------<))
+       ((>-- dearmor.c --- convert encoded ascii file to binary ----<)*)
+        (>-- delcr.c ----- delete the '\r' from every '\r\n' -------<))*)
+       ((>-- extract.c --- extract files from text archive ---------<))*)
+      (*(>-- forarg.c ---- process files on command line -----------<)*)
+     (*((>-- mkarray.c --- convert input file to C array -----------<))
+     (*((>-- mkdep.c ----- output files #include'd by file ---------<)
+      (*(>-- mkstring.c -- convert input line to C string ----------<))
+       ((>-- mksystype --- determine operating system --------------<)*)
+        (>-- retract.c --- create extract format text archive ------<))*)
+       ((>-- test.db ----- test database for config ----------------<))*)
+      (*(>-- testarray.c - test program for mkarray ----------------<)*)
+     (*((>-- textpack.c -- compress text files ---------------------<))
+     (*((>-- textpand.c -- uncompress text files -------------------<)
+      (*(>-- tree.c ------ create binary tree from frequency info --<))
+       ((>-- tree.h ------ create binary tree from frequency info --<)*) 
+        (>-- unmake.c ---- process include directives in makefile --<))*)
+
+
+                    (                                makeutil version 0.1.0 )
+                    (   this software is hereby placed in the public domain )
+                    ( aisa0(at)users.sourceforge.net, aisa(at)cybermesa.com )
+                    ( thanks to phrack magazine for the extract file format )
+|---------------------------------------------------------------------(eof)--|
+$Id: README,v 1.5 2006/06/29 02:02:53 aisa0 Exp $
+                                                                         ..__
+                                                                         `' "

@@ -1,0 +1,8 @@
+;;;
+;;; vpath - find file in view path
+;;;
+;;;  $ b00t vpath file
+;;;
+
+(print (vpath (car argv)))
+(terpri)
