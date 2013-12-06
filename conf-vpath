@@ -9,5 +9,3 @@ VPATH=.:/usr/local
 # the install path to match the path specified in that file.
 #
 # this file is included directly by make.
-#
-# $Id: conf-vpath,v 1.1 2006/07/25 02:29:15 aisa0 Exp $

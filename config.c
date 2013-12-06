@@ -2,15 +2,12 @@
  * config - retrieve platform specific file from config database.
  *
  * this file is part of the makeutil package:
- *   http://sourceforge.net/projects/makeutil/
- *   http://www.cybermesa.com/~aisa/makeutil/
+ *   https://github.com/alanpost/makeutil
  *
  * this file is hereby placed in the public domain.
- * aisa0@users.sourceforge.net, aisa@cybermesa.com
+ * alyn.post@lodockikumazvati.org
  */
 
-
-static char rcsid[]="$Id: config.c,v 1.2 2004/12/11 18:21:04 aisa0 Exp $";
 
 #include <sys/types.h>
 #include <sys/param.h>

@@ -3,18 +3,15 @@
 # mksystype - determine the platform description
 #
 # this file is part of the makeutil package:
-#   http://sourceforge.net/projects/makeutil/
-#   http://www.cybermesa.com/~aisa/makeutil/
+#   https://github.com/alanpost/makeutil
 #
 # this file is hereby placed in the public domain.
-# aisa0@users.sourceforge.net, aisa@cybermesa.com
+# alyn.post@lodockikumazvati.org
 #
 #
 # the platform description has the following format:
 #
 #   os-version:kern-version:arch:cc-version:ccdesc:pdesc:filename
-# 
-# $Id: mksystype,v 1.3 2006/06/29 02:02:53 aisa0 Exp $
 #
 
 exec 2>/dev/null

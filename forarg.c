@@ -2,14 +2,11 @@
  * forarg - open each file and call closure
  *
  * this file is part of the makeutil package:
- *   http://sourceforge.net/projects/makeutil/
- *   http://www.cybermesa.com/~aisa/makeutil/
+ *   https://github.com/alanpost/makeutil
  *
  * this file is hereby placed in the public domain.
- * aisa0@users.sourceforge.net, aisa@cybermesa.com
+ * alyn.post@lodockikumazvati.org
  */
-
-static char rcsid[]="$Id: forarg.c,v 1.2 2006/06/19 03:44:30 aisa0 Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>

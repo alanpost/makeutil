@@ -2,11 +2,10 @@
 # makeutil - build system support tools
 #
 # this file is part of the makeutil package:
-#   http://sourceforge.net/projects/makeutil/
-#   http://www.cybermesa.com/~aisa/makeutil/
+#   https://github.com/alanpost/makeutil
 #
 # this file is hereby placed in the public domain.
-# aisa0@users.sourceforge.net, aisa@cybermesa.com
+# alyn.post@lodockikumazvati.org
 #
 # default   - build all targets.
 # test      - run the test suite.
@@ -28,8 +27,6 @@
 # your own build system.  The rules here are simple enough that you
 # shouldn't hassle with trying to get this makefile to work with
 # whatever system you are using to build.
-#
-# $Id: Makefile,v 1.7 2006/07/25 02:29:15 aisa0 Exp $
 #
 
 SHELL=/bin/sh

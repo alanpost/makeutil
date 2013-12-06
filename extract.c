@@ -2,14 +2,11 @@
  * extract - extract files from text archive
  *
  * this file is part of the makeutil package:
- *   http://sourceforge.net/projects/makeutil/
- *   http://www.cybermesa.com/~aisa/makeutil/
+ *   https://github.com/alanpost/makeutil
  *
  * this file is hereby placed in the public domain.
- * aisa0@users.sourceforge.net, aisa@cybermesa.com
+ * alyn.post@lodockikumazvati.org
  */
-
-static char rcsid[]="$Id: extract.c,v 1.1 2004/11/28 22:57:53 aisa0 Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>

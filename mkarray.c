@@ -2,14 +2,11 @@
  * mkarray - make a c array containing the input file.
  *
  * this file is part of the makeutil package:
- *   http://sourceforge.net/projects/makeutil/
- *   http://www.cybermesa.com/~aisa/makeutil/
+ *   https://github.com/alanpost/makeutil
  *
  * this file is hereby placed in the public domain.
- * aisa0@users.sourceforge.net, aisa@cybermesa.com
+ * alyn.post@lodockikumazvati.org
  */
-
-static char rcsid[]="$Id: mkarray.c,v 1.2 2004/12/11 18:21:51 aisa0 Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,8 +27,6 @@ mkarray(filename, file, varname)
   fprintf(stdout, " */\n");
   fprintf(stdout, "\n");
   fprintf(stdout, "#include <string.h>\n");
-  fprintf(stdout, "\n");
-  fprintf(stdout, "static char rcsid[]=\"%s\";\n", rcsid);
   fprintf(stdout, "\n");
   fprintf(stdout, "char %s[]=\n{\n", varname);
 

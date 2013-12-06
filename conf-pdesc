@@ -23,5 +23,3 @@ pdesc:
 
   NOTE: you must edit the Makefile for the pkg* platform
 		description to work.
-
-$Id: conf-pdesc,v 1.1 2004/11/28 22:57:53 aisa0 Exp $

@@ -1,21 +1,26 @@
 |--------------------------------------------------(0x01)-------(changelog)--|
 
---[28.Jun.2006] aisa -
+--[06.Dec.2013] .alyn.post. -
+    + migrate to git.
+    + update email address and website url.
+    + remove rcsid.
+
+--[28.Jun.2006] .alyn.post. -
     + document mkdep.
     + finish README.b00t documentation.
     + add b00t.c, a simple lisp interpreter.
     + add remaining files in distribution to test target.
     + update mksystype for several linux platforms.
 
---[22.Jun.2006] aisa -
+--[22.Jun.2006] .alyn.post. -
     + add more documentation to README.b00t.
     + add TODO file listing future work.
 
---[20.Jun.2006] aisa -
+--[20.Jun.2006] .alyn.post. -
     + remove all references to automeek from config.db.
     + remove *-sys targets from config.db.  i've never used them.
 
---[18.Jun.2006] aisa -
+--[18.Jun.2006] .alyn.post. -
     + add README.b00t in anticipation of importing b00t.c.  i haven't
       finished the documentation for every routine yet.
     + shut up compiler warnings by renaming main to func in forarg.c
@@ -35,35 +40,33 @@
     + improve freebsd and redhat systype detection.  use the correct
       perl on freebsd.
 
---[24.Feb.2005] aisa -
+--[24.Feb.2005] .alyn.post. -
     + actually include mkstring in the release. (oops)
     + add mkdep utility
 
---[13.Dec.2004] aisa -
+--[13.Dec.2004] .alyn.post. -
     + makeutil version 0.2.0 released
 
---[10.Dec.2004] aisa -
+--[10.Dec.2004] .alyn.post. -
     + switch dist target to use openssl for md5 and sha1 checksums.
       openssl is available on a wider variety of platforms.
     + continuing documentation cleanup
 
---[09.Dec.2004] aisa -
+--[09.Dec.2004] .alyn.post. -
     + oof, included an old version of config.c.  updated to one
       that actually works with config.db
     + the extract format text archive is now bzip2 compressed
     + better documentation in the README
     + update web page
 
---[01.Dec.2004] aisa -
+--[01.Dec.2004] .alyn.post. -
     + add mkstring utility
     + minor correction to testarray.c
 
---[28.Nov.2004] aisa -
+--[28.Nov.2004] .alyn.post. -
     + makeutil version 0.1.0 released
 
 
 |---------------------------------------------------------------------(eof)--|
-$Id: Changes,v 1.5 2006/06/29 02:02:53 aisa0 Exp $
-
                                                                          ..__
                                                                          `' "

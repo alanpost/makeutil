@@ -2,14 +2,11 @@
  * l1sp - library for basic in-process lisp scripting
  *
  * this file is part of the makeutil package:
- *   http://sourceforge.net/projects/makeutil/
- *   http://www.cybermesa.com/~aisa/makeutil/
+ *   https://github.com/alanpost/makeutil
  *
  * this file is hereby placed in the public domain.
- * aisa0@users.sourceforge.net, aisa@cybermesa.com
+ * alyn.post@lodockikumazvati.org
  */
-
-static char rcsid[]="$Id: b00t.c,v 1.2 2006/07/25 02:29:15 aisa0 Exp $";
 
 #define _LARGEFILE_SOURCE 1
 #define _LARGEFILE64_SOURCE 1

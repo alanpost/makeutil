@@ -2,13 +2,10 @@
  * tree.h - huffman compression data structures
  *
  * this file is part of the makeutil package:
- *   http://sourceforge.net/projects/makeutil/
- *   http://www.cybermesa.com/~aisa/makeutil/
+ *   https://github.com/alanpost/makeutil
  *
  * this file is hereby placed in the public domain.
- * aisa0@users.sourceforge.net, aisa@cybermesa.com
- *
- * $Id: tree.h,v 1.1 2004/11/28 22:57:53 aisa0 Exp $
+ * alyn.post@lodockikumazvati.org
  */
 
 struct tree
