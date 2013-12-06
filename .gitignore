@@ -1,0 +1,43 @@
+# source code archive
+makeutil.text
+
+## frequency table
+## makeutil.text
+##
+freq.c
+freq.d
+
+
+## test data.
+## mkarray, mkstring
+##
+test0.c
+test1.c
+
+
+## obj/
+##
+*.o
+
+
+## bin/ 
+##
+addcr
+armor
+b00t
+ccinfo
+ckey
+config
+dearmor
+delcr
+extract
+mkarray
+mkdep
+mkstring
+retract
+systype
+testarray
+teststring
+textpack
+textpand
+unmake
